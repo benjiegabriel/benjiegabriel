@@ -4,13 +4,15 @@
     <meta charset="utf-8" />
       
     <style>
-        #barchart, #piechart {width: 70%;
+        #linechart, #piechart {width: 70%;
                height: 400px;
                margin-top: 50px;
                margin-left: auto; 
                margin-right: auto;
               /* border-radius: 10px;
                box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);*/}  
+        #piechart {margin-top: 0px;}       
+        #year {width: 250px;}    
     </style>  
     <!-- Include the ECharts file you just downloaded -->
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>    
@@ -18,62 +20,99 @@
   </head>
   
   <body>
+    <label>Select a year</label>
+    <select  id="year" onchange="SelectYear()">
+      <option value="2025">2025</option>
+      <option value="2024">2024</option>
+      <option value="2023">2023</option>
+      <option value="2022">2022</option>
+    </select>
+  
    <!-- Prepare a DOM with a defined width and height for ECharts -->
-    <div id="barchart"></div>
+   <div id="linechart"></div>
     <div id="piechart"></div>
   
     <script type="text/javascript">
-      // Initialize the echarts instance based on the prepared dom
-      var barChart = echarts.init(document.getElementById('barchart'));
-
-      // Specify the configuration items and data for the chart
-      var option = {
-        title: {
-          text: 'Production vs Billed Volume for Year 2024',
-          left: 'center'    
-        },
-        tooltip: {},
-         legend: {
-           data: ['cu.m'],
-           bottom: '5%' 
-         },
-        xAxis: {
-          data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 
+         var prodData2024 = [9038400, 8498032, 7925509, 7845132, 7847895, 7558325,
+                   8036850, 9194433, 9031768, 9221892, 8964377, 8981727]; 
+         var billData2024 =  [5735392, 5586091, 5310176, 5324976, 5508974, 5125312, 5468722, 6103833,
+                      5916949, 5977161, 5741396, 5739001];  
+         var prodData = []; 
+         var billData = [];
+    
+         function SelectYear() {
+            if (document.getElementById("year").value == 2024) {
+               prodData = prodData2024.filter(() => true);
+               billData = billData2024.filter(() => true);
+            }
+            drawCharts();
+         }
+         /*--------------*/
+         function drawCharts() {
+            // Initialize the echarts instance based on the prepared dom
+            var linechart = echarts.init(document.getElementById('linechart')); 
+   
+            // Specify the configuration items and data for the chart
+            var option = {
+            title: {
+                text: 'Water Produced vs Water Billed for the Year 2024'
+                //left: 'center'    
+            },
+           tooltip: {},
+           legend: {
+              data: ['production', 'billed volume']
+             //bottom: 10
+           },
+           xAxis: {
+           data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 
                  'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-        },
-        yAxis: {},
-        series: [
-          { name: 'Production', 
-            type: 'bar',
-            data: [9038400, 8498032, 7925509, 7845132, 7847895, 7558325,
-                   8036850, 9194433, 9031768, 9221892, 8964377, 8981727]
-          },
-          {
-            name: 'billed volume',
-            type: 'bar',
-            data: [5735392, 5586091, 5310176, 5324976, 5508974, 5125312, 5468722, 6103833,
-                  5916949, 5977161, 5741396, 5739001]
-          }
-        ]
-      };
-
-      //console.log(myChart);    
-      // Display the chart using the configuration items and data just specified.
-      barChart.setOption(option);
-    /*-------------------------------*/        
-       var pieChart = echarts.init(document.getElementById('piechart'));
-       var pieoptions;
+           },
+           yAxis: {},
+           series: [
+             { name: 'production', 
+               type: 'line',
+               areaStyle: {},
+               smooth: true,
+               data: prodData
+             },
+            {
+               name: 'billed volume',
+               type: 'line',
+               areaStyle: {},
+               smooth: true,
+               data: billData
+            }
+          ]
+        };
+     
+       // Display the chart using the configuration items and data just specified.
+       linechart.setOption(option);
+       /*-------------------------------*/        
+        var pieChart = echarts.init(document.getElementById('piechart'));
+        var pieoptions;
         
         pieoptions = {
+          title: {
+            text: 'Non-Revenue Water',
+            left: 'center'    
+          },
+           tooltip: {
+               trigger: 'item'
+           },
+          legend: {
+             top: '5%',
+             left: 'center'
+          },
           series: [{
             name: 'NRW',
             type: 'pie',
             radius: ['40%', '70%'],
+            color: ['red','blue'],
             avoidLabelOverlap: false,
             itemStyle: {
               borderRadius: 10,
               borderColor: '#fff',
-              borderWidth: 2    
+              borderWidth: 4    
             },
             label: {
               show: false,
@@ -90,15 +129,15 @@
               show: false  
             }, 
             data: [
-              { value: 33.88, name: 'NRW' },
-              { value: 66.12, name: 'SRR'}
+              { value: 33.88, name: 'NRW'},
+              { value: 66.12, name: 'Billed Water'}
             ]  
            }
           ]  
         };    
         
         pieChart.setOption(pieoptions);
-        
+      } // end of function drawCharts   
         
     </script>
   
